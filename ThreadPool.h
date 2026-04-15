@@ -21,7 +21,7 @@ private:
 public:
     ThreadPool(size_t);
     ~ThreadPool();
-    template<class F, class ...Args>
+    template<typename F, typename ...Args>
     auto enqueue(F &&, Args &&...) -> std::future<typename std::invoke_result_t<F, Args...>>;
 };
 
@@ -72,7 +72,7 @@ ThreadPool::~ThreadPool()
     }
 }
 
-template<class F, class ...Args>
+template<typename F, typename ...Args>
 auto ThreadPool::enqueue(F &&f, Args &&...args) -> std::future<typename std::invoke_result_t<F, Args...>>
 {
     using resType = typename std::invoke_result_t<F, Args...>;
