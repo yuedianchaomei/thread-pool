@@ -1,5 +1,6 @@
 #include <iostream>
 #include "ThreadPool.h"
+#include "SafeQueue.h"
 
 int main() 
 {
@@ -20,6 +21,46 @@ int main()
     {
         std::cout << result.get() << std::endl;
     }
+
+    // SafeQueue
+    std::mutex printMutex;
+    auto safePrint = [&printMutex](const std::string &msg)
+    {
+        std::lock_guard<std::mutex> lock(printMutex);
+        std::cout << msg << std::endl;
+    };
+
+    SafeQueue<int> q;
+
+    std::thread productor([&]()
+    {
+        for(int i = 0; i < 5; ++i)
+        {
+            q.push(i);
+            safePrint("生产：" + std::to_string(i));
+            std::this_thread::sleep_for(std::chrono::milliseconds(500));
+        }
+    });
+
+    std::thread consumer([&]()
+    {
+        int val;
+        while(true)
+        {
+            if (q.waitPop(val, std::chrono::milliseconds(1000)))
+            {
+                safePrint("消费：" + std::to_string(val));
+            }
+            else
+            {
+                safePrint("超时，退出消费。");
+                break;
+            }
+        }
+    });
+
+    productor.join();
+    consumer.join();
     
     return 0;
 }
