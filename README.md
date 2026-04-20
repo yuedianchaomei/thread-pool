@@ -7,7 +7,8 @@ ThreadPool
 ```c++
 ThreadPool pool(4);
 
-auto result = pool.enqueue([](int answer){
+auto result = pool.enqueue([](int answer)
+{
   return answer;
 }, 1);
 
@@ -49,4 +50,31 @@ std::thread consumer([&q]()
         }
     }
 });
+
+productor.join();
+consumer.join();
+```
+
+PoolWithSafeQueue
+===
+使用线程安全队列的线程池
+
+使用方法
+```c++
+PoolWithSafeQueue poolWSQ(4);
+std::vector<std::future<int>> results;
+
+for (int i = 0; i < 10; ++i) 
+{
+    results.emplace_back(poolWSQ.enqueue([](int answer) 
+    {
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+        return answer;
+    }, i));
+}
+
+for (auto& result : results) 
+{
+    std::cout << result.get() << std::endl;
+}
 ```
