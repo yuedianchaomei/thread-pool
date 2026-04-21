@@ -1,5 +1,13 @@
 #pragma once
 
+#include <vector>
+#include <thread>
+#include "SafeQueue.h"
+#include <functional>
+#include <mutex>
+#include <future>
+#include <iostream>
+
 class PoolWithSafeQueue
 {
 private:
